@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi.exceptions import HTTPException
 from starlette.responses import PlainTextResponse
 
 from coin.coin import toss
@@ -16,7 +16,7 @@ async def http_exception_handler(request, exc):
 
 @app.get("/coin")
 async def coin():
-    return {"result": toss()}
+    return toss()
 
 
 @app.get("/coin/{n}")
@@ -24,27 +24,27 @@ async def coin_many(n: int):
     result = []
     for i in range(n):
         result.append(toss())
-    return {"result": result}
+    return result
 
 
 @app.get("/number")
 async def number(min_value: int, max_value: int, may_repeat: bool = True, allow_fractions: bool = False):
     gen = Generator(may_repeat=may_repeat, fractions_allowed=allow_fractions)
-    return {"result": gen.generate_one(min_value, max_value)}
+    return gen.generate_one(min_value, max_value)
 
 
 @app.get("/numbers/{n}")
 async def number_many(n: int, min_value: int, max_value: int,
                       may_repeat: bool = True, allow_fractions: bool = False):
     gen = Generator(may_repeat=may_repeat, fractions_allowed=allow_fractions)
-    return {"result": gen.generate_many(min_value, max_value, n)}
+    return gen.generate_many(min_value, max_value, n)
 
 
 @app.get("/word")
 async def russian_word(query: str = None):
-    return {"result": words.random_word(query)}
+    return words.random_word(query)
 
 
 @app.get("/words/{n}")
 async def russian_words(n: int, query: str = None):
-    return {"result": words.random_words(query, n)}
+    return words.random_words(query, n)
