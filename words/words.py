@@ -2,7 +2,7 @@ import random
 from datetime import datetime
 
 
-FILE_NAME = 'russian_singular_and_plural.txt'
+FILE_NAME = 'words/russian_singular_and_plural.txt'
 ENCODING = 'utf-8'
 
 
@@ -31,3 +31,11 @@ def random_word(query):
     time = now.hour * now.minute
     r = byte_sum * time * random.random()
     return calculate_word(r - r // 1)
+
+
+def random_words(query, n):
+    result = []
+    for i in range(n):
+        result.append(random_word(query))
+    return result
+
