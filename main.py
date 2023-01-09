@@ -1,12 +1,23 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.exceptions import HTTPException
+from sqlalchemy.orm import Session
 from starlette.responses import PlainTextResponse
 
 from coin.coin import toss
+from db.database import SessionLocal
 from numgen.numgen import Generator
 from words import words
 
 app = FastAPI()
+
+
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.exception_handler(HTTPException)
@@ -41,10 +52,10 @@ async def number_many(n: int, min_value: int, max_value: int,
 
 
 @app.get("/word")
-async def russian_word(query: str = None):
-    return words.random_word(query)
+async def russian_word(query: str = None, db: Session = Depends(get_db)):
+    return words.random_word(query, db)
 
 
 @app.get("/words/{n}")
-async def russian_words(n: int, query: str = None):
-    return words.random_words(query, n)
+async def russian_words(n: int, query: str = None, db: Session = Depends(get_db)):
+    return words.random_words(query, n, db)
