@@ -23,3 +23,14 @@ class Word(Base):
         self.lang = lang
         self.is_active = is_active
 
+
+class Gender(Base):
+    __tablename__ = "genders"
+
+    id = Column(Integer, primary_key=True, unique=True, index=True)
+    name = Column(String, unique=True)
+    is_active = Column(Boolean, default=True)
+
+    def __init__(self, name, is_active=True):
+        self.name = name
+        self.is_active = is_active

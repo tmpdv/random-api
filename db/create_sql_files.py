@@ -1,5 +1,7 @@
-RUS_WORDS_TXT = 'russian_singular_and_plural.txt'
-FN = 'sql/russian_singular_and_plural.sql'
+RUS_WORDS_TXT = 'txt/russian_singular_and_plural.txt'
+RUS_WORDS_SQL = 'sql/russian_singular_and_plural.sql'
+GENDERS_TXT = 'txt/genders.txt'
+GENDERS_SQL = 'sql/genders.sql'
 ENCODING = 'utf-8'
 
 
@@ -10,7 +12,7 @@ def count_lines(file_name, chunk_size=1 << 13):
 
 
 def init_russian_words():
-    with open(FN, 'w', encoding=ENCODING) as f:
+    with open(RUS_WORDS_SQL, 'w', encoding=ENCODING) as f:
         f.write('INSERT INTO words(word, lang, is_active) VALUES \n')
         with open(RUS_WORDS_TXT, 'r', encoding=ENCODING) as file:
             for i in range(count_lines(RUS_WORDS_TXT)):
@@ -18,3 +20,14 @@ def init_russian_words():
                 line = "('" + word.strip() + "', " + "'RU'" + ', ' + 'true' + '),\n'
                 f.write(line)
 
+
+def init_genders():
+    with open(GENDERS_SQL, 'w', encoding=ENCODING) as f:
+        f.write('INSERT INTO genders(name, is_active) VALUES \n')
+        with open(GENDERS_TXT, 'r', encoding=ENCODING) as file:
+            for i in range(count_lines(GENDERS_TXT)):
+                name = file.readline()
+                line = "('" + name.strip() + "', " + 'true' + '),\n'
+                f.write(line)
+
+init_genders()

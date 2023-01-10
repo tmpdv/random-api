@@ -1,4 +1,4 @@
-import random
+from random import random
 from datetime import datetime
 
 from db.crud import count_words, get_word_by_num
@@ -11,14 +11,14 @@ def calculate_word(rand, db):
 
 def random_word(query: str, db):
     if query is None:
-        return calculate_word(random.random(), db)
+        return calculate_word(random(), db)
     byte_array = bytes(query, 'utf-8')
     byte_sum = 0
     for b in byte_array:
         byte_sum += b
     now = datetime.now()
     time = now.hour * now.minute
-    r = byte_sum * time * random.random()
+    r = byte_sum * time * random()
     return calculate_word(r - r // 1, db)
 
 

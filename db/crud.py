@@ -1,7 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from .models import Word
+from .models import Word, Gender
 
 
 def get_words(db: Session):
@@ -21,3 +21,11 @@ def create_word(db: Session, word):
 
 def count_words(db: Session):
     return db.query(text('count(*) FROM words')).scalar()
+
+
+def count_genders(db: Session):
+    return db.query(text('count(*) FROM genders')).scalar()
+
+
+def get_gender_by_id(pk, db: Session):
+    return db.query(Gender).filter(Gender.id == pk).first().name

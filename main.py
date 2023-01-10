@@ -6,7 +6,7 @@ from starlette.responses import PlainTextResponse
 from coin.coin import toss
 from db.database import SessionLocal
 from numgen.numgen import Generator
-from words import words
+from words import words, genders
 
 app = FastAPI()
 
@@ -59,3 +59,8 @@ async def russian_word(query: str = None, db: Session = Depends(get_db)):
 @app.get("/words/{n}")
 async def russian_words(n: int, query: str = None, db: Session = Depends(get_db)):
     return words.random_words(query, n, db)
+
+
+@app.get("/gender")
+async def gender(db: Session = Depends(get_db)):
+    return genders.calculate_gender(db)
