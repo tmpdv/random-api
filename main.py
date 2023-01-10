@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 from starlette.responses import PlainTextResponse
@@ -23,6 +23,14 @@ def get_db():
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+
+
+@app.middleware("http")
+async def simple_security(request: Request, call_next):
+    auth = request.headers.get('Kui')
+    if auth != 'Gd83CMntb9BaY0R33x3Jr9-TbJxQtXVwPv0c3A0u':
+        return PlainTextResponse('Access denied', status_code=403)
+    return await call_next(request)
 
 
 @app.get("/coin")

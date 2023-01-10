@@ -7,7 +7,8 @@ __CHAR_TYPES__ = {
     'lowercase_letters': 'abcdefghijklmnopqrstuvwxyz',
     'uppercase_letters': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     'digits': '0123456789',
-    'parenthesis': r"""()<>[]_{}"""
+    'parenthesis': r"""()<>[]{}""",
+    'dashes': '_-'
 }
 
 
