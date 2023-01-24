@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette.responses import PlainTextResponse
 
@@ -7,11 +9,23 @@ from coin.coin import toss
 from db.database import SessionLocal
 from numgen.numgen import Generator
 from words import words, genders
+from auth import auth, dto
 
 app = FastAPI()
 
 
-# Dependency
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Dependencies
 def get_db():
     db = SessionLocal()
     try:
@@ -20,17 +34,33 @@ def get_db():
         db.close()
 
 
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    return auth.get_current_active_user(token, db)
+
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
 
 
-@app.middleware("http")
-async def simple_security(request: Request, call_next):
-    auth = request.headers.get('Kui')
-    if auth != 'Gd83CMntb9BaY0R33x3Jr9-TbJxQtXVwPv0c3A0u':
-        return PlainTextResponse('Access denied', status_code=403)
-    return await call_next(request)
+@app.get("/test/")
+async def read_items(token: str = Depends(oauth2_scheme)):
+    return {"token": token}
+
+
+@app.post("/login", response_model=dto.Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    return await auth.authenticate(form_data.username, form_data.password, db)
+
+
+@app.get("/user/me")
+async def get_user_me(current_user=Depends(get_current_user)):
+    return current_user
+
+
+@app.post("/user/create")
+async def registration(request: Request, db: Session = Depends(get_db)):
+    return await auth.create_user(request, db)
 
 
 @app.get("/coin")
@@ -69,6 +99,6 @@ async def russian_words(n: int, query: str = None, db: Session = Depends(get_db)
     return words.random_words(query, n, db)
 
 
-@app.get("/gender")
+@app.post("/gender")
 async def gender(db: Session = Depends(get_db)):
     return genders.calculate_gender(db)
