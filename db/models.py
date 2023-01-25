@@ -50,3 +50,6 @@ class User(Base):
         self.email = email
         self.password = password
         self.is_active = is_active
+
+    def is_anon(self):
+        return self.id == -1

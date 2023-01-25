@@ -5,14 +5,13 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from starlette.responses import PlainTextResponse
 
-from coin.coin import toss
+from coin import coin
 from db.database import SessionLocal
 from numgen.numgen import Generator
 from words import words, genders
 from auth import auth, dto
 
 app = FastAPI()
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -43,9 +42,9 @@ async def http_exception_handler(request, exc):
     return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
 
 
-@app.get("/test/")
-async def read_items(token: str = Depends(oauth2_scheme)):
-    return {"token": token}
+@app.get("/auth/default", response_model=dto.Token)
+async def get_auth_default():
+    return await auth.get_anon_token()
 
 
 @app.post("/login", response_model=dto.Token)
@@ -64,16 +63,18 @@ async def registration(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get("/coin")
-async def coin():
-    return toss()
+async def coin_one(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    return await coin.toss_and_save(user, db)
 
 
 @app.get("/coin/{n}")
-async def coin_many(n: int):
-    result = []
-    for i in range(n):
-        result.append(toss())
-    return result
+async def coin_many(n: int, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    return await coin.toss_and_save_many(n, user, db)
+
+
+@app.get("/results/coin")
+async def get_all_coins(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    return await coin.get_coin_results(user, db)
 
 
 @app.get("/number")

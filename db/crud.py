@@ -40,3 +40,10 @@ def save_user(user: User, db: Session):
     db.commit()
     db.refresh(user)
     return user
+
+
+def save_entity(entity, db: Session):
+    db.add(entity)
+    db.commit()
+    db.refresh(entity)
+    return entity
